@@ -48,6 +48,7 @@ def load_data():
     return dfTrain,dfTest,X_train,y_train,X_test,ids_test,cat_features_indices
 
 def run_base_model_dfm(dfTrain,dfTest,folds,dfm_params):
+    # DataReader是自定义的一个class
     fd = FeatureDictionary(dfTrain=dfTrain,
                            dfTest=dfTest,
                            numeric_cols=config.NUMERIC_COLS,
@@ -114,7 +115,6 @@ def _make_submission(ids, y_pred, filename="submission.csv"):
     pd.DataFrame({"id": ids, "target": y_pred.flatten()}).to_csv(
         os.path.join(config.SUB_DIR, filename), index=False, float_format="%.5f")
 
-
 def _plot_fig(train_results, valid_results, model_name):
     colors = ["red", "blue", "green"]
     xs = np.arange(1, train_results.shape[1]+1)
@@ -132,48 +132,48 @@ def _plot_fig(train_results, valid_results, model_name):
     plt.savefig("fig/%s.png"%model_name)
     plt.close()
 
+def main()
+    dfm_params = {
+        "use_fm":True,
+        "use_deep":True,
+        "embedding_size":8,
+        "dropout_fm":[1.0,1.0],
+        "deep_layers":[32,32],
+        "dropout_deep":[0.5,0.5,0.5],
+        "deep_layer_activation":tf.nn.relu,
+        "epoch":30,
+        "batch_size":1024,
+        "learning_rate":0.001,
+        "optimizer":"adam",
+        "batch_norm":1,
+        "batch_norm_decay":0.995,
+        "l2_reg":0.01,
+        "verbose":True,
+        "eval_metric":gini_norm,
+        "random_seed":config.RANDOM_SEED
 
-dfm_params = {
-    "use_fm":True,
-    "use_deep":True,
-    "embedding_size":8,
-    "dropout_fm":[1.0,1.0],
-    "deep_layers":[32,32],
-    "dropout_deep":[0.5,0.5,0.5],
-    "deep_layer_activation":tf.nn.relu,
-    "epoch":30,
-    "batch_size":1024,
-    "learning_rate":0.001,
-    "optimizer":"adam",
-    "batch_norm":1,
-    "batch_norm_decay":0.995,
-    "l2_reg":0.01,
-    "verbose":True,
-    "eval_metric":gini_norm,
-    "random_seed":config.RANDOM_SEED
+    }
 
-}
+    # load data
+    dfTrain, dfTest, X_train, y_train, X_test, ids_test, cat_features_indices = load_data()
 
-# load data
-dfTrain, dfTest, X_train, y_train, X_test, ids_test, cat_features_indices = load_data()
+    # folds
+    folds = list(StratifiedKFold(n_splits=config.NUM_SPLITS, shuffle=True,random_state=config.RANDOM_SEED).split(X_train, y_train))
 
-# folds
-folds = list(StratifiedKFold(n_splits=config.NUM_SPLITS, shuffle=True,
-                             random_state=config.RANDOM_SEED).split(X_train, y_train))
-
-#y_train_dfm,y_test_dfm = run_base_model_dfm(dfTrain,dfTest,folds,dfm_params)
-y_train_dfm, y_test_dfm = run_base_model_dfm(dfTrain, dfTest, folds, dfm_params)
-
-
-# ------------------ FM Model ------------------
-fm_params = dfm_params.copy()
-fm_params["use_deep"] = False
-y_train_fm, y_test_fm = run_base_model_dfm(dfTrain, dfTest, folds, fm_params)
+    #y_train_dfm,y_test_dfm = run_base_model_dfm(dfTrain,dfTest,folds,dfm_params)
+    y_train_dfm, y_test_dfm = run_base_model_dfm(dfTrain, dfTest, folds, dfm_params)
 
 
-# ------------------ DNN Model ------------------
-dnn_params = dfm_params.copy()
-dnn_params["use_fm"] = False
-y_train_dnn, y_test_dnn = run_base_model_dfm(dfTrain, dfTest, folds, dnn_params)
+    # ------------------ FM Model ------------------
+    fm_params = dfm_params.copy()
+    fm_params["use_deep"] = False
+    y_train_fm, y_test_fm = run_base_model_dfm(dfTrain, dfTest, folds, fm_params)
 
 
+    # ------------------ DNN Model ------------------
+    dnn_params = dfm_params.copy()
+    dnn_params["use_fm"] = False
+    y_train_dnn, y_test_dnn = run_base_model_dfm(dfTrain, dfTest, folds, dnn_params)
+
+if __name__ == '__main__':
+    main()
