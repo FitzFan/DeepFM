@@ -63,9 +63,7 @@ def run_base_model_dfm(dfTrain,dfTest,folds,dfm_params):
     print(dfTrain.dtypes)
     print 'feature_size is', fd.feat_dim
     print 'field_size is', len(Xi_train[0])
-    # 每个Field对应一个特征one-hot后的稀疏向量, embedding压缩的是每个one-hot后的特征
-    # 所以field_size 一定会比 feature_size 大。
-    # 因为field_size 是 feature_size 经过one-hot处理后的系数特征空间。
+    # 关于feature和field的区别，参见笔记
     print '-----------------------'
 
     dfm_params['feature_size'] = fd.feat_dim

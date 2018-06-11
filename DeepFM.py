@@ -93,18 +93,19 @@ class DeepFM(BaseEstimator, TransformerMixin):
             self.y_first_order = tf.reduce_sum(tf.multiply(self.y_first_order,feat_value),2) # 按列求和
             self.y_first_order = tf.nn.dropout(self.y_first_order,self.dropout_keep_fm[0]) # 根据给出的keep_prob参数，将输入tensor x按比例输出
 
-            # second order term
+            # second order term...1
             # sum-square-part
             self.summed_features_emb = tf.reduce_sum(self.embeddings,1) # 按行求和
             self.summed_features_emb_square = tf.square(self.summed_features_emb) # None * K
 
-            # squre-sum-part
+            # squre-sum-part...2
             self.squared_features_emb = tf.square(self.embeddings)
-            self.squared_sum_features_emb = tf.reduce_sum(self.squared_features_emb, 1)  # None * K
+            self.squared_sum_features_emb = tf.reduce_sum(self.squared_features_emb, 1)  # 按行求和
 
-            # second order
+            # second order...3
             self.y_second_order = 0.5 * tf.subtract(self.summed_features_emb_square,self.squared_sum_features_emb)
             self.y_second_order = tf.nn.dropout(self.y_second_order,self.dropout_keep_fm[1])
+            """1-3的本质是利用平方和公式的推广，化简FM的交互项，So Easy"""
 
 
             # Deep component
