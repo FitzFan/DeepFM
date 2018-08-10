@@ -158,7 +158,7 @@ def main()
     # folds
     folds = list(StratifiedKFold(n_splits=config.NUM_SPLITS, shuffle=True,random_state=config.RANDOM_SEED).split(X_train, y_train))
 
-    #y_train_dfm,y_test_dfm = run_base_model_dfm(dfTrain,dfTest,folds,dfm_params)
+    # ------------------ deepFM Model ------------------
     y_train_dfm, y_test_dfm = run_base_model_dfm(dfTrain, dfTest, folds, dfm_params)
 
 
